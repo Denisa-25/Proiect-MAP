@@ -2,6 +2,7 @@ import heapq
 import random
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
+from collections import deque
 
 @dataclass(order=True)
 class Event:
@@ -12,3 +13,29 @@ class Event:
     server_id: Optional[int]= field(default=None, compare=False)
     
 
+class Server:
+    def __init__(self, server_id):
+      self.id = server_id
+      self.coada = deque()
+      self.ocupat = False
+      self.client_curent = None
+      self.start_service_time = {}
+    
+    def adauga_client(self,client_id):
+        self.coada.append(client_id)
+
+    
+    def poate_incepe_serviciul(self):
+        return (not self.ocupat) and (len(self.coada) > 0) 
+    
+    def incepe_serviciul(self, current_time):
+        client_id = self.coada.popleft()
+        self.client_curent = client_id
+        self.ocupat = True
+        self.start_service_time[client_id] = current_time
+        return client_id
+    
+    def termina_serviciul(self):
+        self.ocupat = False
+        self.client_curent = None
+        
