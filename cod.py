@@ -39,3 +39,16 @@ class Server:
         self.ocupat = False
         self.client_curent = None
         
+    
+    def genereaza_servicu_si_plecare(server_id, client_id, current_time, service_rate):
+        durata_serviciu = random.expovariate(service_rate)
+        departure_time = current_time + durata_serviciu
+
+        eveniment_plecare = Event(
+            time = departure_time,
+            priority = 1,
+            type = "departure",
+            customer_id = client_id,
+            server_id = server_id
+        )
+        return eveniment_plecare
