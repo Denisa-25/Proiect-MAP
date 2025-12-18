@@ -40,7 +40,7 @@ class Server:
         self.client_curent = None
         
     
-    def genereaza_servicu_si_plecare(server_id, client_id, current_time, service_rate):
+    def genereaza_serviciu_si_plecare(server_id, client_id, current_time, service_rate):
         durata_serviciu = random.expovariate(service_rate)
         departure_time = current_time + durata_serviciu
 
@@ -52,3 +52,27 @@ class Server:
             server_id = server_id
         )
         return eveniment_plecare
+    
+    class Simulator:
+        def __init__(self, num_servers, arrival_rate, service_rate, max_time):
+            self.arrival_rate = arrival_rate
+            self.service_rate = service_rate
+            self.max_time = max_time
+            self.current_time = 0.0
+            self.event_queue: List[Event] = []
+            heapq.heapify(self.event_queue)
+            self.servers = [Server(i) for i in range(num_servers)]
+            self.next_customer_id = 0
+            self.wait_times = []
+
+        def initializeaza(self):
+            timp_sosire = random.expovariate(self.arrival_rate)
+            eveniment_sosire = Event(
+                time=timp_sosire,
+                priority=0,
+                type="arrival",
+                customer_id=self.next_customer_id
+            )
+            heapq.heappush(self.event_queue, eveniment_sosire)
+            self.next_customer_id += 1
+
