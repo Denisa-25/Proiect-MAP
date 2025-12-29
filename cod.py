@@ -76,3 +76,52 @@ class Server:
             heapq.heappush(self.event_queue, eveniment_sosire)
             self.next_customer_id += 1
 
+        def gaseste_server_liber(self):
+            for server in self.servers:
+                if not server.ocupat:
+                    return server
+                return None
+            
+        def proceseaza_sosire(self, event: Event):
+            self.current_time = event.time
+            client_id = event.customer_id
+
+            server = self.gaseste_server_liber()
+            if server:
+                server.adauga_client(client_id)
+                client_servit = server.incepe_serviciul(self.current_time)
+
+                eveniment_plecare = server.genereaza_serviciu_si_plecare(
+                    server.id,
+                    client_servit,
+                    self.current_time,
+                    self.service_rate
+                )
+
+                heapq.heappush(self.event_queue, eveniment_plecare)
+            else:
+                self.servers[0].adauga_client(client_id)
+
+        def proceseaza_plecare(self, event: Event):
+            self.current_time = event.time
+            server = self.servers[event.server_id]
+            client_id = event.customer_id
+
+            start_time = server.start_service_time[client_id]
+            timp_asteptare = start_time
+            self.wait_times.append(timp_asteptare)
+
+            server.termina_serviciul()
+
+            if server.coada:
+                client_nou = server.incepe_serviciul(self.current_time)
+
+                eveniment_plecare = server.genereaza_serviciu_si_plecare(
+                    server.id,
+                    client_nou,
+                    self.current_time,
+                    self.service_rate
+                )
+
+                heapq.heappush(self.event_queue, eveniment_plecare)
+                
